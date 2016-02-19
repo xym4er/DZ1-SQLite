@@ -11,9 +11,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 
 import com.chornyiua.geekbrains.dz1_sqlite.adapters.CompanyListAdapter;
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
                 ContentValues contentValues = new ContentValues();
 
-                contentValues.put(adapter.getDbHelper().KEY_NAME, etCompanyName.getText().toString());
+                contentValues.put(adapter.getDbHelper().COMPANY_NAME, etCompanyName.getText().toString());
 
                 database.insert(adapter.getDbHelper().COMPANY_TABLE, null, contentValues);
                 adapter.getDbHelper().close();
