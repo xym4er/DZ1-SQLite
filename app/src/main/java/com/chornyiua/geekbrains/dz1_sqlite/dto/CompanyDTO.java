@@ -5,8 +5,9 @@ public class CompanyDTO {
     private int id;
     private String name;
 
-    public CompanyDTO(String name) {
+    public CompanyDTO(String name, int id) {
         this.name = name;
+        this.id = id;
     }
 
     public CompanyDTO() {

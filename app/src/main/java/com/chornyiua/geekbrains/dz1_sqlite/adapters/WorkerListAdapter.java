@@ -13,18 +13,21 @@ import android.widget.TextView;
 
 import com.chornyiua.geekbrains.dz1_sqlite.R;
 import com.chornyiua.geekbrains.dz1_sqlite.dto.CompanyDTO;
+import com.chornyiua.geekbrains.dz1_sqlite.dto.WorkerDTO;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CompanyListAdapter extends RecyclerView.Adapter<CompanyListAdapter.CompanyViewHolder> {
+public class WorkerListAdapter extends RecyclerView.Adapter<WorkerListAdapter.WorkerViewHolder> {
 
-    private List<CompanyDTO> data;
+    private List<WorkerDTO> data;
     private DataBaseHelper dbHelper;
     private Context context;
+    private int companyID;
 
-    public CompanyListAdapter(Context context) {
+    public WorkerListAdapter(Context context,int companyID) {
         this.context = context;
+        this.companyID = companyID;
         this.dbHelper = new DataBaseHelper(this.context);
         readDataFromDB();
     }
@@ -33,17 +36,20 @@ public class CompanyListAdapter extends RecyclerView.Adapter<CompanyListAdapter.
         return dbHelper;
     }
 
-    public List<CompanyDTO> readDataFromDB() {
+    public List<WorkerDTO> readDataFromDB() {
         data = new ArrayList<>();
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        Cursor cursor = database.query(dbHelper.COMPANY_TABLE, null, null, null, null, null, null);
+        Cursor cursor = database.query(dbHelper.WORKERS_TABLE, null, null, null, null, null, null);
 
         if (cursor.moveToFirst()) {
-            int idIndex = cursor.getColumnIndex(dbHelper.COMPANY_KEY_ID);
-            int nameIndex = cursor.getColumnIndex(dbHelper.COMPANY_NAME);
+            int idIndex = cursor.getColumnIndex(dbHelper.WORKERS_KEY_ID);
+            int nameIndex = cursor.getColumnIndex(dbHelper.WORKERS_NAME);
+            int salaryIndex = cursor.getColumnIndex(dbHelper.WORKERS_SALARY);
+            int companyIdIndex = cursor.getColumnIndex(dbHelper.WORKERS_COMPANY_ID);
             do {
-                data.add(new CompanyDTO(cursor.getString(nameIndex), cursor.getInt(idIndex)));
-
+                if (companyID == cursor.getInt(companyIdIndex)) {
+                    data.add(new WorkerDTO(cursor.getInt(idIndex), cursor.getString(nameIndex), cursor.getInt(salaryIndex), cursor.getInt(companyIdIndex)));
+                }
             } while (cursor.moveToNext());
         }
 
@@ -53,20 +59,15 @@ public class CompanyListAdapter extends RecyclerView.Adapter<CompanyListAdapter.
     }
 
     @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
+    public WorkerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.worker_item, parent, false);
+        return new WorkerViewHolder(view);
     }
 
     @Override
-    public CompanyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.company_item, parent, false);
-
-        return new CompanyViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(CompanyViewHolder holder, final int position) {
+    public void onBindViewHolder(WorkerViewHolder holder, final int position) {
         holder.name.setText(data.get(position).getName());
+        holder.salary.setText(data.get(position).getSalary());
         holder.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,18 +87,19 @@ public class CompanyListAdapter extends RecyclerView.Adapter<CompanyListAdapter.
         return data.size();
     }
 
-    public static class CompanyViewHolder extends RecyclerView.ViewHolder {
+    public class WorkerViewHolder extends RecyclerView.ViewHolder {
+
         CardView cardView;
         TextView name;
+        TextView salary;
         Button button;
 
-        public CompanyViewHolder(View itemView) {
+        public WorkerViewHolder(View itemView) {
             super(itemView);
-            name = (TextView) itemView.findViewById(R.id.tvCompany);
-            button = (Button) itemView.findViewById(R.id.btnCompany);
-            cardView = (CardView) itemView.findViewById(R.id.cvCampany);
+            name = (TextView) itemView.findViewById(R.id.tvWorkerName);
+            salary = (TextView) itemView.findViewById(R.id.tvWorkerSalary);
+            button = (Button) itemView.findViewById(R.id.btnWorker);
+            cardView = (CardView) itemView.findViewById(R.id.cvWorker);
         }
     }
-
-
 }

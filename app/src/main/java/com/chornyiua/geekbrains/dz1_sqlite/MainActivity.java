@@ -2,17 +2,14 @@ package com.chornyiua.geekbrains.dz1_sqlite;
 
 import android.content.ContentValues;
 import android.content.DialogInterface;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
@@ -20,15 +17,8 @@ import android.view.MenuItem;
 import android.widget.EditText;
 
 import com.chornyiua.geekbrains.dz1_sqlite.adapters.CompanyListAdapter;
-import com.chornyiua.geekbrains.dz1_sqlite.adapters.DataBaseHelper;
-import com.chornyiua.geekbrains.dz1_sqlite.dto.CompanyDTO;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    List<CompanyDTO> data;
-    DataBaseHelper dbHelper;
     RecyclerView rv;
     CompanyListAdapter adapter;
 
@@ -47,11 +37,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        dbHelper = new DataBaseHelper(this);
 
-        rv = (RecyclerView)findViewById(R.id.rvCompany);
+        rv = (RecyclerView) findViewById(R.id.rvCompany);
         rv.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-        adapter = new CompanyListAdapter(readDataFromDB());
+        adapter = new CompanyListAdapter(this);
         rv.setAdapter(adapter);
 
     }
@@ -68,16 +57,18 @@ public class MainActivity extends AppCompatActivity {
         dialogBuilder.setMessage("Enter company name");
         dialogBuilder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                SQLiteDatabase database = dbHelper.getWritableDatabase();
+                SQLiteDatabase database = adapter.getDbHelper().getWritableDatabase();
 
                 ContentValues contentValues = new ContentValues();
 
-                contentValues.put(dbHelper.KEY_NAME, etCompanyName.getText().toString());
+                contentValues.put(adapter.getDbHelper().KEY_NAME, etCompanyName.getText().toString());
 
-                database.insert(dbHelper.COMPANY_TABLE, null, contentValues);
-                dbHelper.close();
+                database.insert(adapter.getDbHelper().COMPANY_TABLE, null, contentValues);
+                adapter.getDbHelper().close();
+
+                adapter.readDataFromDB();
                 adapter.notifyDataSetChanged();
-                rv.invalidate();
+
 
             }
         });
@@ -90,23 +81,6 @@ public class MainActivity extends AppCompatActivity {
         b.show();
     }
 
-    private List<CompanyDTO> readDataFromDB() {
-        data = new ArrayList<>();
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
-        Cursor cursor = database.query(dbHelper.COMPANY_TABLE, null, null, null, null, null, null);
-
-        if (cursor.moveToFirst()) {
-            int idIndex = cursor.getColumnIndex(dbHelper.KEY_ID);
-            int nameIndex = cursor.getColumnIndex(dbHelper.KEY_NAME);
-            do {
-                data.add(new CompanyDTO(cursor.getString(nameIndex)));
-            } while (cursor.moveToNext());
-        }
-
-        cursor.close();
-        dbHelper.close();
-        return data;
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
