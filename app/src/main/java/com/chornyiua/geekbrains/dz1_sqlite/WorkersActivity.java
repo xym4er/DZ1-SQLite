@@ -76,7 +76,4 @@ public class WorkersActivity extends AppCompatActivity {
         AlertDialog b = dialogBuilder.create();
         b.show();
     }
-
-
-
 }

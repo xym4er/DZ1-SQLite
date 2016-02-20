@@ -80,7 +80,7 @@ public class WorkerListAdapter extends RecyclerView.Adapter<WorkerListAdapter.Wo
                     dialogBuilder.setMessage("Really?");
                     dialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int arg1) {
-                            database.delete(dbHelper.COMPANY_TABLE, "_id = " + id, null);
+                            database.delete(dbHelper.WORKERS_TABLE, "_id = " + id, null);
                             readDataFromDB();
                             notifyDataSetChanged();
                             Toast.makeText(context, "remove",
