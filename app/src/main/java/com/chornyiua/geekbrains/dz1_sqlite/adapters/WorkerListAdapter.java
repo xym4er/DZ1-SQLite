@@ -1,8 +1,10 @@
 package com.chornyiua.geekbrains.dz1_sqlite.adapters;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,9 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.chornyiua.geekbrains.dz1_sqlite.R;
-import com.chornyiua.geekbrains.dz1_sqlite.dto.CompanyDTO;
 import com.chornyiua.geekbrains.dz1_sqlite.dto.WorkerDTO;
 
 import java.util.ArrayList;
@@ -25,7 +27,7 @@ public class WorkerListAdapter extends RecyclerView.Adapter<WorkerListAdapter.Wo
     private Context context;
     private int companyID;
 
-    public WorkerListAdapter(Context context,int companyID) {
+    public WorkerListAdapter(Context context, int companyID) {
         this.context = context;
         this.companyID = companyID;
         this.dbHelper = new DataBaseHelper(this.context);
@@ -48,11 +50,10 @@ public class WorkerListAdapter extends RecyclerView.Adapter<WorkerListAdapter.Wo
             int companyIdIndex = cursor.getColumnIndex(dbHelper.WORKERS_COMPANY_ID);
             do {
                 if (companyID == cursor.getInt(companyIdIndex)) {
-                    data.add(new WorkerDTO(cursor.getInt(idIndex), cursor.getString(nameIndex), cursor.getInt(salaryIndex), cursor.getInt(companyIdIndex)));
+                    data.add(new WorkerDTO(cursor.getInt(idIndex), cursor.getString(nameIndex), cursor.getInt(companyIdIndex), cursor.getString(salaryIndex)));
                 }
             } while (cursor.moveToNext());
         }
-
         cursor.close();
         dbHelper.close();
         return data;
@@ -71,12 +72,35 @@ public class WorkerListAdapter extends RecyclerView.Adapter<WorkerListAdapter.Wo
         holder.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SQLiteDatabase database = dbHelper.getWritableDatabase();
-                int id = data.get(position).getId();
+                final SQLiteDatabase database = dbHelper.getWritableDatabase();
+                final int id = data.get(position).getId();
                 if (id != 0) {
-                    database.delete(dbHelper.COMPANY_TABLE, "_id = " + id, null);
-                    readDataFromDB();
-                    notifyDataSetChanged();
+                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+                    dialogBuilder.setTitle("Delete");
+                    dialogBuilder.setMessage("Really?");
+                    dialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int arg1) {
+                            database.delete(dbHelper.COMPANY_TABLE, "_id = " + id, null);
+                            readDataFromDB();
+                            notifyDataSetChanged();
+                            Toast.makeText(context, "remove",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    dialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int arg1) {
+                            Toast.makeText(context, "cancel", Toast.LENGTH_LONG)
+                                    .show();
+                        }
+                    });
+                    dialogBuilder.setCancelable(true);
+                    dialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        public void onCancel(DialogInterface dialog) {
+                            Toast.makeText(context, "cancel",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    dialogBuilder.show();
                 }
             }
         });
@@ -88,7 +112,6 @@ public class WorkerListAdapter extends RecyclerView.Adapter<WorkerListAdapter.Wo
     }
 
     public class WorkerViewHolder extends RecyclerView.ViewHolder {
-
         CardView cardView;
         TextView name;
         TextView salary;

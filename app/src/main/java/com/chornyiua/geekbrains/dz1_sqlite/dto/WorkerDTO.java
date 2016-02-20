@@ -5,9 +5,9 @@ public class WorkerDTO {
     private int id;
     private String name;
     private int companyID;
-    private int salary;
+    private String salary;
 
-    public WorkerDTO(int id, String name, int companyID, int salary) {
+    public WorkerDTO(int id, String name, int companyID, String salary) {
         this.id = id;
         this.name = name;
         this.companyID = companyID;
@@ -46,11 +46,11 @@ public class WorkerDTO {
         this.companyID = companyID;
     }
 
-    public int getSalary() {
+    public String getSalary() {
         return salary;
     }
 
-    public void setSalary(int salary) {
+    public void setSalary(String salary) {
         this.salary = salary;
     }
 }

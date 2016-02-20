@@ -37,12 +37,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         rv = (RecyclerView) findViewById(R.id.rvCompany);
         rv.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         adapter = new CompanyListAdapter(this);
         rv.setAdapter(adapter);
-
     }
 
     private void showAddCompanyDialog() {
@@ -50,26 +48,18 @@ public class MainActivity extends AppCompatActivity {
         LayoutInflater inflater = this.getLayoutInflater();
         final View dialogView = inflater.inflate(R.layout.add_company_dialog, null);
         dialogBuilder.setView(dialogView);
-
         final EditText etCompanyName = (EditText) dialogView.findViewById(R.id.etCompanyName);
-
         dialogBuilder.setTitle("Add company");
         dialogBuilder.setMessage("Enter company name");
         dialogBuilder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 SQLiteDatabase database = adapter.getDbHelper().getWritableDatabase();
-
                 ContentValues contentValues = new ContentValues();
-
                 contentValues.put(adapter.getDbHelper().COMPANY_NAME, etCompanyName.getText().toString());
-
                 database.insert(adapter.getDbHelper().COMPANY_TABLE, null, contentValues);
                 adapter.getDbHelper().close();
-
                 adapter.readDataFromDB();
                 adapter.notifyDataSetChanged();
-
-
             }
         });
         dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -80,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog b = dialogBuilder.create();
         b.show();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

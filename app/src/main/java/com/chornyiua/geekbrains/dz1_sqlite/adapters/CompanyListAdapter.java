@@ -1,8 +1,11 @@
 package com.chornyiua.geekbrains.dz1_sqlite.adapters;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,8 +13,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.chornyiua.geekbrains.dz1_sqlite.R;
+import com.chornyiua.geekbrains.dz1_sqlite.WorkersActivity;
 import com.chornyiua.geekbrains.dz1_sqlite.dto.CompanyDTO;
 
 import java.util.ArrayList;
@@ -46,7 +51,6 @@ public class CompanyListAdapter extends RecyclerView.Adapter<CompanyListAdapter.
 
             } while (cursor.moveToNext());
         }
-
         cursor.close();
         dbHelper.close();
         return data;
@@ -60,22 +64,53 @@ public class CompanyListAdapter extends RecyclerView.Adapter<CompanyListAdapter.
     @Override
     public CompanyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.company_item, parent, false);
-
         return new CompanyViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(CompanyViewHolder holder, final int position) {
         holder.name.setText(data.get(position).getName());
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, WorkersActivity.class);
+                intent.putExtra("companyID", data.get(position).getId());
+                context.startActivity(intent);
+            }
+        });
         holder.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SQLiteDatabase database = dbHelper.getWritableDatabase();
-                int id = data.get(position).getId();
+                final SQLiteDatabase database = dbHelper.getWritableDatabase();
+                final int id = data.get(position).getId();
                 if (id != 0) {
-                    database.delete(dbHelper.COMPANY_TABLE, "_id = " + id, null);
-                    readDataFromDB();
-                    notifyDataSetChanged();
+                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+                    dialogBuilder.setTitle("Delete");
+                    dialogBuilder.setMessage("Really?");
+                    dialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int arg1) {
+                            database.delete(dbHelper.COMPANY_TABLE, dbHelper.COMPANY_KEY_ID + " = " + id, null);
+                            database.delete(dbHelper.WORKERS_TABLE, dbHelper.WORKERS_COMPANY_ID + " = " + id, null);
+                            readDataFromDB();
+                            notifyDataSetChanged();
+                            Toast.makeText(context, "remove",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    dialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int arg1) {
+                            Toast.makeText(context, "cancel", Toast.LENGTH_LONG)
+                                    .show();
+                        }
+                    });
+                    dialogBuilder.setCancelable(true);
+                    dialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        public void onCancel(DialogInterface dialog) {
+                            Toast.makeText(context, "cancel",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    dialogBuilder.show();
                 }
             }
         });
