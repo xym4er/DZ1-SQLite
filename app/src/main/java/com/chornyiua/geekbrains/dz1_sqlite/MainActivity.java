@@ -67,8 +67,9 @@ public class MainActivity extends AppCompatActivity {
                 //pass
             }
         });
-        AlertDialog b = dialogBuilder.create();
-        b.show();
+//        AlertDialog b = dialogBuilder.create();
+//        b.show();
+        dialogBuilder.create().show();
     }
 
     @Override

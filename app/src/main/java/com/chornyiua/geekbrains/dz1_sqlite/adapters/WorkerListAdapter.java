@@ -74,7 +74,7 @@ public class WorkerListAdapter extends RecyclerView.Adapter<WorkerListAdapter.Wo
             public void onClick(View v) {
                 final SQLiteDatabase database = dbHelper.getWritableDatabase();
                 final int id = data.get(position).getId();
-                if (id != 0) {
+                if (id > 0) {
                     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
                     dialogBuilder.setTitle("Delete");
                     dialogBuilder.setMessage("Really?");
